@@ -68,14 +68,7 @@
 (defn pt-2 [& args]
   (let [[[s c] x] args]
     (let [[s' c'] (rot2+ s (or x 0))
-          res [s' (+ c c')]
-          ]
-      (printf "pos=%s; rot=%s ==> newpos=%s; zeroes=%s => %s\n"
-        s
-        (or x 0)
-        s'
-        c
-        (+ c c'))
+          res [s' (+ c c')]]
       res)))
 
 
