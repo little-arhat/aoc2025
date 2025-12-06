@@ -8,8 +8,10 @@
                n)]
     (slurp (format "%s/resources/larhat/%s.txt" (System/getProperty "user.dir") name))))
 
+
 (defn words [s]
   (str/split s #"\s"))
+
 
 (defn comma-sequence [s]
   (-> s
