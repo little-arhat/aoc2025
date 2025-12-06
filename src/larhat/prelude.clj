@@ -37,24 +37,34 @@
   ([n]  (Long. (str n)))
   ([n x] (Long/parseLong n x)))
 
+
 (defn parse-bin-int [n] (parse-int n 2))
 
-;; (defn parse-long [n]
-;;   (Long. n))
+
+(defn char->int [c] (- (int c) 48))
+
+
+(defn digits [s]
+  (map char->int s))
+
 
 (defn bound [mi ma x]
   (min ma (max mi x)))
+
 
 (defn num-grid [s]
   (if (seq? s)
     (mapv #(mapv parse-int %) s)
     (mapv #(mapv parse-int %) (lines s))))
 
+
 (defn inp-num-grid [n]
   (num-grid (input n)))
 
+
 (defn map-grid [f grid]
   (mapv #(mapv f %) grid))
+
 
 (defn grid-get
   ([grid]
@@ -62,6 +72,7 @@
      (get-in grid [y x])))
   ([grid [x y]]
    (get-in grid [y x])))
+
 
 (defn grid-select [pred mp grid]
   (apply concat
@@ -74,6 +85,7 @@
                      row)))
       grid)))
 
+
 ; https://github.com/cloojure/tupelo/blob/c37b8aeb382697127b825a9f75a3e9c8e99290ed/src/cljc/tupelo/core.cljc#L667
 (defmacro forv
   "Like clojure.core/for but returns results in a vector.
@@ -84,15 +96,22 @@
     `(vec (for ~bindings-vec
             (do ~@body-forms)))))
 
+
 (defn map-grid-indexed [f grid]
   (forv [y (range (count grid))]
     (forv [x (range (count (first grid)))]
       (f [x y] (grid-get grid [x y])))))
 
+
 (defn concat* [xs]
   (apply concat xs))
+
 
 (defn comma-ints [s]
   (as-> (str/trim s) x
     (str/split x #"\,")
     (mapv parse-int x)))
+
+
+(defn enumerate [coll]
+  (map-indexed (fn [idx item] [idx item]) coll))
