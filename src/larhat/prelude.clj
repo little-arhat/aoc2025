@@ -145,6 +145,13 @@
               :neighbours  neighbours}))))))
 
 
+(defn grid-count-matching [pred grid]
+  (transduce (comp cat (filter pred))
+             (completing (fn [acc _] (inc acc)))
+             0
+             grid))
+
+
 (defn concat* [xs]
   (apply concat xs))
 

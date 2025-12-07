@@ -9,11 +9,8 @@
 
 
 (defn free-roll? [{:keys [element neighbours]}]
-  (when (roll? element)
-    (->> neighbours
-      (filter roll?)
-      (count)
-      (#(< % 4)))))
+  (and (roll? element)
+    (< (count (filter roll? neighbours)) 4))))
 
 
 (defn ->map [data]
@@ -24,13 +21,11 @@
   (->> data
     (->map)
     (map-grid-with-adj free-roll?)
-    (concat* )
-    (filter some?)
-    (count)))
+    (grid-count-matching true?)))
 
 
-(defn remove-free [{:keys [element] :as o}]
-  (if (free-roll? o)
+(defn remove-free [{:keys [element] :as cell}]
+  (if (free-roll? cell)
     \.
     element))
 
@@ -40,10 +35,7 @@
 
 
 (defn count-rolls [grid]
-  (->> grid
-    (concat*)
-    (filter roll?)
-    (count)))
+  (grid-count-matching roll? grid))
 
 
 (defn solve-2 [data]
