@@ -18,20 +18,26 @@
     str/trim
     (str/split #"\,")))
 
+
 (defn lines [s]
   (str/split-lines s))
+
 
 (defn phrases [s]
   (str/split s #"\n\n"))
 
+
 (defn inp-words [n]
   (-> (input n) words))
+
 
 (defn inp-lines [n]
   (-> (input n) lines))
 
+
 (defn inp-phrases [n]
   (-> (input n) phrases))
+
 
 (defn parse-int
   ([n]  (Long. (str n)))
@@ -175,3 +181,10 @@
     (if (= x next)
       x
       (recur f next))))
+
+
+(defn first-matching [pred coll]
+  (transduce (comp
+               (filter pred)
+               (halt-when any?))
+    identity nil coll))
