@@ -44,6 +44,11 @@
   ([n x] (Long/parseLong n x)))
 
 
+(defn parse-range [s sep f]
+  (let [[a b] (str/split s sep)]
+    [(f a) (f b)]))
+
+
 (defn parse-bin-int [n] (parse-int n 2))
 
 

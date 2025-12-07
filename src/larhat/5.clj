@@ -4,52 +4,54 @@
    [clojure.string :as str]))
 
 
-(defn overlap? [prev-to from]
+(defn overlaps? [prev-to from]
   (and (some? prev-to) (<= from prev-to)))
 
 
-(defn merge-range [merged new-range]
-  (let [[from to] new-range
-        [prev-from prev-to] (last merged)]
-    (if (overlap? prev-to from)
-      (conj (vec (butlast merged)) [prev-from (max to prev-to)])
-      (conj merged [from to]))))
+(defn merge-range [merged [from to]]
+  (if-let [[prev-from prev-to] (peek merged)]
+    (if (overlaps? prev-to from)
+      (conj (pop merged) [prev-from (max to prev-to)])
+      (conj merged [from to]))
+    (conj merged [from to])))
 
 
-(defn parse-range [string-pair]
-  (map parse-int (str/split string-pair #"-")))
+(defn parse-int-range [string-pair]
+  (parse-range string-pair #"-" parse-int))
 
 
-(defn mk-fresh [ingridient]
-  (fn [[from to]]
-    (and (<= from ingridient) (<= ingridient to))))
+(defn in-range? [ingredient [from to]]
+  (and (<= from ingredient) (<= ingredient to)))
 
 
-(defn fresh? [fresh-ranges ingridient]
-  (some (mk-fresh ingridient) fresh-ranges))
+(defn solve-1 [[fresh-ranges ingridients]]
+  (let [pairs (->> fresh-ranges
+                lines
+                (map parse-int-range)
+                (sort-by first))
+        ranges (reduce merge-range [] pairs)
+        fresh? #(some (partial in-range? %) ranges)
+        ing-ids (lines ingridients)
+        xf (comp
+             (map parse-int)
+             (filter fresh?))]
+    (transduce xf
+      (completing (fn [acc _] (inc acc)))
+      0
+      ing-ids)))
 
 
 (defn fresh-in-range [[from to]]
   (inc (- to from)))
 
 
-(defn solve-1 [[fresh-ranges ingridients]]
-  (let [ing-ids (map parse-int (lines ingridients))
-        pairs (map parse-range (lines fresh-ranges))
-        sp (sort #(compare (first %1) (first %2)) pairs)
-        ranges (reduce merge-range [] sp)
-        check-fresh (partial fresh? ranges)]
-    (count (filter check-fresh ing-ids))))
-
-
 (defn solve-2 [[fresh-ranges _]]
   (->> fresh-ranges
     lines
-    (map parse-range)
-    (sort #(compare (first %1) (first %2)))
+    (map parse-int-range)
+    (sort-by first)
     (reduce merge-range [])
-    (map fresh-in-range)
-    (reduce +)))
+    (transduce (map fresh-in-range) + 0)))
 
 
 (defn day-5-1 [data]
