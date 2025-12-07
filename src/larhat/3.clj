@@ -5,7 +5,6 @@
    ))
 
 
-
 (defn max-two-digit-number [s]
   (let [d (digits s)
         ed (enumerate d)
@@ -24,7 +23,7 @@
     (loop [i     0
            stack []]
       (if (= i n)
-        (parse-int (apply str (take k stack)))
+        (digits->int (take k stack))
         (let [d (digits i)]
           (recur (inc i)
             (loop [st stack]

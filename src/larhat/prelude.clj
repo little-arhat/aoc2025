@@ -41,7 +41,21 @@
 (defn parse-bin-int [n] (parse-int n 2))
 
 
-(defn char->int [c] (- (int c) 48))
+(defn char->int [c] (- (int c) (int \0)))
+
+
+(defn chars->int [chars]
+  (reduce (fn [acc digit]
+            (+ (* 10 acc) (char->int digit)))
+    0
+    chars))
+
+
+(defn digits->int [digits]
+  (reduce (fn [acc digit]
+            (+ (* 10 acc) digit))
+    0
+    digits))
 
 
 (defn digits [s]
@@ -52,10 +66,14 @@
   (min ma (max mi x)))
 
 
-(defn num-grid [s]
+(defn ->grid [f s]
   (if (seq? s)
-    (mapv #(mapv parse-int %) s)
-    (mapv #(mapv parse-int %) (lines s))))
+    (mapv #(mapv f %) s)
+    (mapv #(mapv f %) (lines s))))
+
+
+(defn num-grid [s]
+  (->grid parse-int s))
 
 
 (defn inp-num-grid [n]
@@ -103,6 +121,30 @@
       (f [x y] (grid-get grid [x y])))))
 
 
+(defn adjacent-coords [[x y] width height]
+  (for [dy [-1 0 1]
+        dx [-1 0 1]
+        :when (not (and (zero? dx) (zero? dy)))
+        :let [nx (+ x dx)
+              ny (+ y dy)]
+        :when (and (<= 0 nx (dec width))
+                   (<= 0 ny (dec height)))]
+    [nx ny]))
+
+
+(defn map-grid-with-adj [f grid]
+  (let [height (count grid)
+        width  (if (zero? height) 0 (count (first grid)))]
+    (forv [y (range height)]
+      (forv [x (range width)]
+        (let [el        (get-in grid [y x])
+              neigh-coords (adjacent-coords [x y] width height)
+              neighbours (mapv #(get-in grid [(second %) (first %)]) neigh-coords)]
+          (f {:element     el
+              :coords      [x y]
+              :neighbours  neighbours}))))))
+
+
 (defn concat* [xs]
   (apply concat xs))
 
@@ -115,3 +157,14 @@
 
 (defn enumerate [coll]
   (map-indexed (fn [idx item] [idx item]) coll))
+
+
+(defn tprn [x]
+  (prn x) x)
+
+
+(defn fixpoint [f x]
+  (let [next (f x)]
+    (if (= x next)
+      x
+      (recur f next))))
